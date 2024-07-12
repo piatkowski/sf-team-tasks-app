@@ -6,6 +6,7 @@ use App\Entity\Team;
 use App\Form\TeamType;
 use App\Repository\TeamRepository;
 use App\Repository\UserRepository;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -31,11 +32,14 @@ class TeamController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $team->addMember($team->getLeader());
-            $entityManager->persist($team);
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_team_index', [], Response::HTTP_SEE_OTHER);
+            try {
+                $team->addMember($team->getLeader());
+                $entityManager->persist($team);
+                $entityManager->flush();
+                return $this->redirectToRoute('app_team_index', [], Response::HTTP_SEE_OTHER);
+            } catch(UniqueConstraintViolationException $e) {
+                $this->addFlash('error', 'This user is already a leader. Choose different one.');
+            }
         }
 
         return $this->render('team/new.html.twig', [
@@ -61,11 +65,15 @@ class TeamController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $team->removeMember($old_leader);
-            $team->addMember($team->getLeader());
-            $entityManager->flush();
+            try {
+                $team->removeMember($old_leader);
+                $team->addMember($team->getLeader());
+                $entityManager->flush();
 
-            return $this->redirectToRoute('app_team_index', [], Response::HTTP_SEE_OTHER);
+                return $this->redirectToRoute('app_team_index', [], Response::HTTP_SEE_OTHER);
+            } catch(UniqueConstraintViolationException $e) {
+                $this->addFlash('error', 'This user is already a leader. Choose different one.');
+            }
         }
 
         return $this->render('team/edit.html.twig', [

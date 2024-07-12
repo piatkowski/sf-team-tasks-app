@@ -17,7 +17,7 @@ class TeamType extends AbstractType
             ->add('name')
             ->add('leader', EntityType::class, [
                 'class' => User::class,
-                'choice_label' => 'id',
+                'choice_label' => 'email'
             ])
 //            ->add('member', EntityType::class, [
 //                'class' => User::class,

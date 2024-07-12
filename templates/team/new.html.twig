@@ -4,8 +4,8 @@
 
 {% block body_header %}Create new Team{% endblock %}
 
+{% block body_toolbar %}<a href="{{ path('app_team_index') }}" class="btn btn-primary">Back to list</a>{% endblock %}
+
 {% block body %}
     {{ include('team/_form.html.twig') }}
-
-    <a href="{{ path('app_team_index') }}" class="btn btn-primary">Back to list</a>
 {% endblock %}

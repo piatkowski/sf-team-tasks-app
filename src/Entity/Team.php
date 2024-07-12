@@ -24,7 +24,7 @@ class Team
     #[ORM\OneToMany(targetEntity: Task::class, mappedBy: 'team')]
     private Collection $tasks;
 
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $leader = null;
 
