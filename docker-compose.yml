@@ -1,0 +1,28 @@
+version: '3.9'
+
+volumes:
+  pgdata:
+
+services:
+  postgresql:
+    image: postgres
+    restart: always
+    shm_size: 128mb
+    #volumes:
+    #  - type: tmpfs
+    #    target: /dev/shm
+    #    tmpfs:
+    #      size: 134217728 # 128*2^20 bytes = 128Mb
+    environment:
+      POSTGRES_PASSWORD: demo
+      POSTGRES_USER: demo
+    ports:
+      - 5432:5432
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080

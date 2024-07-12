@@ -1,0 +1,15 @@
+<div class="d-flex flex-column flex-shrink-0 p-3 text-bg-dark" style="width: 280px;">
+    <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+        <span class="fs-4">App</span>
+    </a>
+    <hr>
+    <ul class="nav nav-pills flex-column mb-auto">
+        {% for item in appService.getMenu() %}
+            <li class="nav-item">
+                <a href="{{ path(item.route) }}" class="nav-link{{ app.current_route == item.route ? ' active' : '' }}">
+                    {{ item.label }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
