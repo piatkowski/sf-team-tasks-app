@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Team;
 use App\Form\TeamType;
 use App\Repository\TeamRepository;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,6 +31,7 @@ class TeamController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $team->addMember($team->getLeader());
             $entityManager->persist($team);
             $entityManager->flush();
 
@@ -53,10 +55,14 @@ class TeamController extends AbstractController
     #[Route('/{id}/edit', name: 'app_team_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Team $team, EntityManagerInterface $entityManager): Response
     {
+        $old_leader = $team->getLeader();
+
         $form = $this->createForm(TeamType::class, $team);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $team->removeMember($old_leader);
+            $team->addMember($team->getLeader());
             $entityManager->flush();
 
             return $this->redirectToRoute('app_team_index', [], Response::HTTP_SEE_OTHER);
@@ -77,5 +83,39 @@ class TeamController extends AbstractController
         }
 
         return $this->redirectToRoute('app_team_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/{id}/add_member', name: 'app_team_add_member', methods: ['POST'])]
+    public function addMember(Request $request, Team $team, UserRepository $user, EntityManagerInterface $entityManager): Response
+    {
+        if ($this->isCsrfTokenValid('add_member'.$team->getId(), $request->getPayload()->getString('_token'))) {
+            $new_member = $user->findOneBy([
+                'id' => $request->get('user_id'),
+            ]);
+            if ($new_member) {
+                $team->addMember($new_member);
+                $entityManager->persist($team);
+                $entityManager->flush();
+            }
+        }
+
+        return $this->redirectToRoute('app_team_show', ['id' => $team->getId()], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/{id}/remove_member', name: 'app_team_remove_member', methods: ['POST'])]
+    public function removeMember(Request $request, Team $team, UserRepository $user, EntityManagerInterface $entityManager): Response
+    {
+        if ($this->isCsrfTokenValid('remove_member'.$team->getId(), $request->getPayload()->getString('_token'))) {
+            $member = $user->findOneBy([
+                'id' => $request->get('user_id'),
+            ]);
+            if ($member && $team->getLeader()->getId() !== $member->getId()) {
+                $team->removeMember($member);
+                $entityManager->persist($team);
+                $entityManager->flush();
+            }
+        }
+
+        return $this->redirectToRoute('app_team_show', ['id' => $team->getId()], Response::HTTP_SEE_OTHER);
     }
 }

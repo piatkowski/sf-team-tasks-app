@@ -1,0 +1,9 @@
+<form method="post" class="my-2 d-flex gap-2" style="max-width: 400px" action="{{ path('app_team_add_member', {'id': team.id}) }}">
+    <input type="hidden" name="_token" value="{{ csrf_token('add_member' ~ team.id) }}">
+    <select name="user_id" class="form-select">
+        {% for user in appService.getAvailableUsers() %}
+            <option value="{{ user.id }}">#{{ user.id }} - {{ user.email }}</option>
+        {% endfor %}
+    </select>
+    <button class="btn btn-success">Add</button>
+</form>

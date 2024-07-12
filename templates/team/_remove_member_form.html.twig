@@ -1,0 +1,5 @@
+<form method="post" class="my-2 d-inline" action="{{ path('app_team_remove_member', {'id': team.id}) }}" onsubmit="return confirm('Are you sure you want to delete member?');">
+    <input type="hidden" name="_token" value="{{ csrf_token('remove_member' ~ team.id) }}">
+    <input type="hidden" name="user_id" value="{{ user_id }}">
+    <button class="btn btn-danger">Remove</button>
+</form>

@@ -20,9 +20,15 @@
         <tr>
             <th>Members</th>
             <td>
+                <table class="table">
                 {% for member in team.member %}
-                    - {{ member.email }} <br/>
+                    <tr>
+                        <td>{{ member.email }}</td>
+                        <td>{{ team.leader.id != member.id ? include('team/_remove_member_form.html.twig', {user_id: member.id}) : '' }}</td>
+                    </tr>
                 {% endfor %}
+                </table>
+                {{ include('team/_add_member_form.html.twig') }}
             </td>
         </tr>
         </tbody>
